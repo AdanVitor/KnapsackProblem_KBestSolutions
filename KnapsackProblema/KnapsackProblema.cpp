@@ -13,12 +13,17 @@
 
 void generateTestCase( ){
 	
+// defining a seed
+srand(1000);
 testCase1();
 printf("\nTerminou teste Case 1");
+
 testCase2();
 printf("\nTerminou teste Case 2");
+
 testCase3();
 printf("\nTerminou teste Case 3");
+
 
 getchar();
 
@@ -44,9 +49,12 @@ void testOpenMP(){
 
 void main(){
 
-	testOpenMP();
-	
-	boolean testPdfOn = true;
+	// testOpenMP();
+
+	int NumProc = omp_get_num_procs()/2;
+	omp_set_num_threads(NumProc);
+
+	boolean testPdfOn = false;
 	if (!testPdfOn){
 		generateTestCase();
 	}
@@ -54,6 +62,7 @@ void main(){
 		imprimeResultado = true;
 		simpleTestCase();
 	}
+
 	
 
 }

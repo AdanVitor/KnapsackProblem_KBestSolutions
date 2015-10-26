@@ -1,8 +1,8 @@
 
  %{ ****** Efect of varying b *************** %}
- forwardTimes = [ 0.06 0.18 0.36 0.61 0.89 1.22 1.63 2.07 2.49 2.91 3.37 3.79 4.22 4.64 5.07 5.46 5.93 6.35 6.77 7.20  ]; 
- backwardTimes = [ 0.75 1.00 1.25 1.51 1.70 1.91 2.12 2.34 2.56 2.77 3.01 3.28 3.52 3.82 4.07 4.31 4.64 5.00 5.37 5.74  ]; 
- totalTimes = [ 0.81 1.18 1.61 2.12 2.59 3.13 3.74 4.41 5.05 5.68 6.38 7.07 7.75 8.46 9.14 9.77 10.57 11.35 12.15 12.94  ]; 
+ forwardTimes = [ 0.11 0.23 0.40 0.58 0.79 0.99 1.18 1.45 1.71 1.94 2.23 2.51 2.78 3.03 3.34 3.58 3.81 4.09 4.35 4.62  ]; 
+ backwardTimes = [ 0.80 0.94 1.09 1.24 1.35 1.61 1.75 1.88 2.00 2.10 2.20 2.30 2.43 2.48 2.63 2.74 2.85 2.95 3.02 3.18  ]; 
+ totalTimes = [ 0.91 1.18 1.49 1.82 2.13 2.60 2.93 3.32 3.71 4.04 4.43 4.81 5.21 5.51 5.96 6.32 6.66 7.04 7.37 7.81  ]; 
  bValues = [5000 10000 15000 20000 25000 30000 35000 40000 45000 50000 55000 60000 65000 70000 75000 80000 85000 90000 95000 100000  ] ;
 
 
@@ -13,8 +13,8 @@
  hold on; 
  plot(bValues, totalTimes , 'g'); 
  hold off; 
-  legend('Tempo construção da tabela de soluções', 'Tempo construção da lista das K melhores soluções', 'Tempo Total');
- title('Efeito de variar b para k = 6250, n = 3125') ;
+ legend('Tempo forward', 'Tempo Backward', 'Tempo Total'); 
+ title('Effect of varying b') ;
  xlabel('Valores de  b') ;
  ylabel('Tempo execução'); 
 

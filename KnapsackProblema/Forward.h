@@ -1,6 +1,9 @@
 
 #include "stdlib.h"
 #include "GlobalVariables.h"
+#include <omp.h>
+
+void serialforwardEnumeration(double ** matrix, int *a, double *c, int b, int n);
 
 
 
@@ -27,6 +30,7 @@ double** initialMatrix(int b, int n){
 	}
 
 	/*Finally initializing the matrix with object values = -1*/
+    #pragma omp parallel for
 	for (int i = 1; i <= b; i++){
 		for (int j = 1; j <= n; j++){
 			matrix[i][j] = -1;
@@ -35,9 +39,134 @@ double** initialMatrix(int b, int n){
 	return matrix;
 }
 
+struct ThreadInfo{
+	int minValidColumn;
+	bool isDependent;
+};
+
 
 /*This function mount the Knapsack table*/
 void forwardEnumeration(double ** matrix, int *a, double *c, int b, int n){
+	/* Initial ramification */
+
+    #pragma omp parallel for
+	for (int j = 1; j <= n; j++){
+		if (a[j] <= b){ // for the case that a element of a[i] is bigger than b.
+			matrix[a[j]][j] = c[j];
+		}
+	}
+
+	/*Ramification of supernodes*/
+
+	// o que seria paralelizavel seria esse for de fora
+
+	// First step of parallel - create the vector of dependencies
+	int const numThreads = omp_get_max_threads();
+	ThreadInfo* threadsInfo = (ThreadInfo*)malloc(numThreads*sizeof(ThreadInfo));
+	int maxColumn = n + 1;
+
+
+	//printf("\nNumero de threads: %d", numThreads);
+
+	// init the threads Info
+	for (int i = 0; i < numThreads; i++){
+		threadsInfo[i].isDependent = FALSE;
+		threadsInfo[i].minValidColumn = maxColumn;
+	}
+
+	// the number of threads that were not executed in the previous paralell for
+	int t = a[1];
+	int maxLine = b - a[1] + 1;
+
+
+
+	while (t < maxLine){
+		
+		// to the new threads I will find the minColumns
+		int numLinesToAnalyse = min(numThreads, maxLine - t);
+
+        #pragma omp parallel for
+		for (int i = 0 ; i < numLinesToAnalyse; i++){
+			int m;
+			int threadLine = t + i;
+			for (m = 1; m <= n; m++){
+				if (matrix[threadLine][m] >= 0){
+					break;
+				}
+			}
+			threadsInfo[i].minValidColumn = m;
+			threadsInfo[i].isDependent = false;
+		}
+
+
+		// when the number of threads is less than the number of lines to analyse
+		if (numLinesToAnalyse < numThreads){
+			for (int i = numLinesToAnalyse; i < numThreads; i++){
+				threadsInfo[i].minValidColumn = maxColumn;
+				threadsInfo[i].isDependent = false;
+			}
+		}
+
+		
+
+        // now setting the dependencies
+		for (int i = 0; i < numThreads; i++){
+			if (threadsInfo[i].minValidColumn < maxColumn){
+				int threadIndex = i + a[threadsInfo[i].minValidColumn];
+				if (threadIndex < numThreads){
+					threadsInfo[threadIndex].isDependent = true;
+				}
+			}
+		}
+
+		// now finding the number of threads that will be executed in paralell
+		int workThreads;
+		for (workThreads = 0; workThreads < numThreads; workThreads++){
+			if (threadsInfo[workThreads].isDependent){
+				break;
+			}
+		}
+		
+		
+
+        #pragma omp parallel for
+		for (int w = 0; w < workThreads; w++){
+			int m = threadsInfo[w].minValidColumn;
+			int threadLine = t + w;
+			if (m < maxColumn){
+				double max = matrix[threadLine][m];
+				for (int i = m; i <= n; i++){
+					if (threadLine + a[i] <= b){
+						if (matrix[threadLine][i] > max){
+							max = matrix[threadLine][i];
+						}
+						matrix[threadLine + a[i]][i] = max + c[i];
+					}
+					else{
+						break;
+					}
+				}
+			}
+
+		}
+		t += workThreads;
+	}
+	free(threadsInfo);
+	//serialforwardEnumeration(matrix, a, c, b, n);
+}
+
+void compareValues(double ** matrix, int i, int j, double valueToBeEqual){
+	if (matrix[i][j] != valueToBeEqual){
+		printf("Erro!!!!!!");
+		EXIT_FAILURE;
+	}
+	else{
+		matrix[i][j] = valueToBeEqual;
+	}
+}
+
+/*This function mount the Knapsack table*/
+void serialforwardEnumeration(double ** matrix, int *a, double *c, int b, int n){
 	/* Initial ramification */
 	//###### Esse for é facilmente paralelizável, mais uma vez ver se compensa passar para GPU (primeiro ver se
 	// se copia é feita em paralelo) por causa da passagem para a GPU
@@ -45,11 +174,12 @@ void forwardEnumeration(double ** matrix, int *a, double *c, int b, int n){
 		if (a[j] > b){ // for the case that a element of a[i] is bigger than b.
 			break;
 		}
-		matrix[a[j]][j] = c[j];
+		compareValues(matrix, a[j], j, c[j]);
+		
 	}
 
 	/*Ramification of supernodes*/
-	
+
 	for (int t = a[1]; t <= b - a[1]; t++){
 		/*verifying that the line is not empty. i: column*/
 		int m = 1;
@@ -67,7 +197,7 @@ void forwardEnumeration(double ** matrix, int *a, double *c, int b, int n){
 					if (matrix[t][i] > max){
 						max = matrix[t][i];
 					}
-					matrix[t + a[i]][i] = max + c[i];
+					compareValues(matrix, t + a[i], i, max + c[i]);
 				}
 				else{
 					break;
@@ -76,3 +206,4 @@ void forwardEnumeration(double ** matrix, int *a, double *c, int b, int n){
 		}
 	}
 }
+

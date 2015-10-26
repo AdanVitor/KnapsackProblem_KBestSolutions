@@ -9,6 +9,7 @@ int printFirstSolutions = 0;
 int numberOfRepetitions = 120;
 
 
+
 void orderIntVector(int* vector, int size){
 	// a simple bubble sort
 	int finalPosition = size - 1;
@@ -39,9 +40,11 @@ int* getRandomA(int size, int maxA){
 		a[i] = rand() % maxA + 1;
 		//a[i] = i;
 	}
+	
 	// now I have to order the vector
 	orderIntVector(a + 1, size - 1);
 	// fazer um assert aqui que o vetor ta ordenado
+	//printf("Valor a[2] = %d", a[2]);
 	return a;
 
 }
@@ -380,7 +383,14 @@ void simpleTestCase(){
 	double c[6] = { 0, 4, 3, 5, 7, 8 };
 	int k = 100;
 	double **M = initialMatrix(b, n);
+
+	long time0 = GetTickCount();
 	forwardEnumeration(M, a, c, b, n);
+	long time1 = GetTickCount();
+
+	
+
+
 	kList L = NULL;
 	printMatrix(M, b + 1, n + 1);
 	L = build_initial_best_k_list(M, b, n, a, L, NULL, k, c);

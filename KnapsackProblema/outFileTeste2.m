@@ -1,9 +1,9 @@
 
  %{ ****** Efect of varying n *************** %}
  % Execucao  para k = 5900 , b = 59000
- forwardTimes = [ 0.48 0.95 1.36 1.77 2.15 2.50 2.87 3.24 3.62 3.92 4.27 4.65 5.01 5.27 5.67 6.01 6.37 6.58 6.94 7.22  ]; 
- backwardTimes = [ 1.16 1.88 2.26 2.89 3.21 4.08 4.41 4.84 5.23 5.10 5.47 7.05 6.92 7.22 7.76 8.64 8.15 8.48 10.20 10.09  ]; 
- totalTimes = [ 1.64 2.83 3.63 4.66 5.35 6.59 7.28 8.08 8.85 9.02 9.75 11.71 11.93 12.49 13.43 14.65 14.53 15.07 17.13 17.31  ]; 
+ forwardTimes = [ 1.54 1.61 1.95 2.11 2.48 2.83 2.80 3.29 3.38 3.60 4.21 4.49 4.99 5.33 5.54 5.96 6.00 6.55 6.41 6.99  ]; 
+ backwardTimes = [ 1.74 2.01 3.06 3.23 4.19 4.59 4.39 5.20 5.21 5.35 6.48 6.78 7.61 8.12 8.21 8.72 8.65 9.49 9.28 9.80  ]; 
+ totalTimes = [ 3.28 3.61 5.01 5.34 6.67 7.42 7.19 8.48 8.59 8.96 10.69 11.27 12.60 13.45 13.75 14.68 14.65 16.04 15.69 16.79  ]; 
  nValues = [295 590 885 1180 1475 1770 2065 2360 2655 2950 3245 3540 3835 4130 4425 4720 5015 5310 5605 5900  ] ;
 
 
@@ -14,10 +14,10 @@
  hold on; 
  plot(nValues, totalTimes , 'g'); 
  hold off; 
- legend('Tempo construção da tabela de soluções', 'Tempo construção da lista das K melhores soluções', 'Tempo Total');
- title('Efeito de variar n para k = 5900, b = 59000') ;
+ legend('Tempo forward', 'Tempo Backward', 'Tempo Total'); 
+ title('Effect of varying n') ;
  xlabel('Valores de  n') ;
- ylabel('Tempo execução(s)'); 
+ ylabel('Tempo execução'); 
 
 
  
